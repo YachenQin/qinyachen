@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.19/topojson.min.js"></script>
+	<script src="https://d3js.org/d3-geo-projection.v1.min.js"></script>
+  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+  <style type="text/css">
+  body {
+    font-family:Arial;
+    font-size: 12px;
+    color: #212529;
+    margin:0;
+  }
+  .tooltips {
+    position: absolute;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 3px;
+    line-height: 1;
+    color:white;
+  }
+  .tool-title {
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .tool-text {
+    font-size: 9px;
+    font-weight: 500;
+  }
+  .tool-data {
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 0.7;
+  }
+  .D {
+    color: #2471A3;
+  }
+  .R{
+    color: #CA6F1E;
+  }
+  .headerpart {
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(https://www.wildlifeforever.org/wp-content/uploads/2017/05/speak-on-the-issues.jpg);
+    background-position: center;
+    background-size: cover;
+    height: 400px;
+  }
+  .header-text{
+    text-align: center;
+    padding: 100px 0;
+  }
+  .header-text h1{
+    margin-top: 0px;
+    font-size: 70px;
+    color:white;
+  }
+  .header-text h2{
+    margin-top: 0px;
+    font-size: 20px;
+    font-weight: normal;
+    color:white;
+  }
+  .body-text{
+    text-align: center;
+    padding-top:80px;
+    padding-bottom: 100px;
+    padding-left: 350px;
+    padding-right: 350px;
+    background-color: #F8F9F9;
+  }
+  .body-text h1{
+    margin-top: 0px;
+    font-size: 25px;
+  }
+  .body-text h2{
+    margin-top: 0px;
+    font-size: 18px;
+    font-weight: normal;
+  }
+
+  .footer h2{
+    margin-top: 0px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .maps {
+    height:700px;
+  }
+  .map {
+    margin: auto;
+    width: 80%;
+  }
+  .gdp {
+    float: left;
+    width: 50%;
+    margin-bottom: 50px;
+  }
+  .scatter_plot {
+    margin: auto;
+    width: 68.5%;
+  }
+  .legendTitle {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .scatterPlotX path, line{
+    stroke: #B2BABB !important;
+  }
+  .scatterPlotY path, line{
+    stroke: #B2BABB !important;
+  }
+  .tick text {
+    font-weight: lighter !important;
+    fill: #2C3E50 !important;
+  }
+  .section {
+    margin-bottom: 50px;
+  }
+  .scatter .body-text h1{
+    margin-top: 20px;
+    margin-bottom: 0px;
+    font-size: 25px;
+  }
+
+  .scatter {
+    background-color: #F8F9F9;
+    height: 700px;
+  }
+
+  .slider {
+    width: 70%;
+    margin: auto;
+  }
+
+  .time-slider {
+    background: #E5E8E8;
+    outline: none;
+    opacity: 0.8;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 30px;
+  }
+
+  .time-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 10px;
+    height: 30px;
+    background: #85C1E9;
+    -webkit-appearance: none;
+  }
+
+  .body-text h1{
+    font-weight: 100;
+    font-size: 40px;
+    color: #566573;
+  }
+
+  .body-text h2 {
+    font-weight: 600;
+    font-size: 18px;
+    color: #283747;
+    margin-bottom:30px;
+  }
+
+  .body-text p {
+    font-weight: 300;
+    font-size: 16px;
+    color: #566573;
+    line-height: 170%;
+    margin-bottom:-10px;
+  }
+
+  .body-text img {
+    margin-top: 30px;
+  }
+
+  .body-text-map {
+    margin: auto;
+    width: 80%;
+    margin-top: 75px;
+    margin-bottom: 75px;
+  }
+
+  .body-text-map h1{
+    text-align: center;
+    font-weight: 600;
+    font-size: 27px;
+    color: #2C3E50;
+  }
+
+  .body-text-map p{
+    font-weight: 300;
+    font-size: 16px;
+    color: #566573;
+    line-height: 170%;
+    margin-bottom:-10px;
+  }
+
+  .footer {
+    background-color: #F8F9F9;
+    padding-top: 60px;
+    text-align: center;
+    padding-bottom: 40px;
+  }
+
+  .sc {
+    padding-bottom: 30px;
+  }
+</style>
+</head>
+<body>
+  <header class="headerpart">
+    <div class="header-text">
+      <h1>Wildlife Trade</h1>
+      <h2>CSE557A Final Project</h2>
+    </div>
+  </header>
+  <section class="body-text">
+    <p>Recently, the world's last male northern white rhino has died leaving only two females left to save the subspecies from extinction. It is again alarming us what a severe situation wildlife animals or plants is facing. Worldwide, one in every three species of amphibian is endangered, 39 species have gone extinct in the last 500 years and another 130 species are suspected to have gone extinct in recent decades.</p>
+  </section>
+  <section class="maps">
+    <div class="body-text-map">
+      <h1>Worldwide Distribution Of Wildlife Trade in 2017</h1>
+    </div>
+    <div class="map">
+    </div>
+  </section>
+  <section class="footer">
+    <h2>Website Developed By Yachen Qin</h2>
+  </section>
+  <script type="text/javascript">
+  var geoMap = d3.geoMercator().scale(230);
+  var mapPath = d3.geoPath().projection(geoMap);
+
+  var svg = d3.select(".map")
+  .append("svg")
+  .attr("width",1200)
+  .attr("height", 520);
+
+  var animal = "wildanimal2017.csv";
+  var Importer = [];
+  var Exporter = [];
+  d3.csv(animal, function(data) {
+    for (var d = 0; d < data.length; d++) {
+      Importer.push(data[d].Importer);
+      Exporter.push(data[d].Exporter);
+    }
+    var abbrs_countries = [];
+    var abbrs = [];
+  });
+
+  var importX = d3.map();
+  var importY = d3.map();
+  var exportX = d3.map();
+  var exportY = d3.map();
+  d3.csv("world_countries_abbr.csv", function(data) {
+    var abbrs_countries = [];
+    var abbrs = [];
+    for (var d = 0; d < data.length; d++) {
+      abbrs_countries.push(data[d].name);
+      abbrs.push(data[d].alpha2);
+    }
+    d3.json("world_countries.json", function(data) {
+      svg.selectAll("path")
+      .data(data.features)
+      .enter()
+      .append("path")
+      .attr("d", mapPath)
+      .style("opacity", 0.8)
+      .style("stroke-width", "0.8")
+      .style("stroke", "white")
+      .style("fill", "#85C1E9")
+      .on("mouseover", function(d) {
+        d3.select(this)
+        .style("opacity", 1)
+        .style("stroke","white")
+        .style("stroke-width",3);
+      })
+      .on("mouseout", function(d) {
+        d3.select(this)
+        .style("opacity", 0.8)
+        .style("stroke-width", "0.8")
+        .style("stroke", "white");
+      });
+      for (var i = 0; i < data.features.length; i++) {
+        var idx = -1;
+        for (var j = 0; j < abbrs_countries.length; j++) {
+          var name1 = data.features[i].properties.name;
+          var name2 = abbrs_countries[j];
+          if (name1 == name2) {
+            idx = j;
+            break;
+          }
+        }
+        for (var k = 0; k < Importer.length; k++) {
+          if (idx != -1 && Importer[k] == abbrs[idx]) {
+            if (!importX.has(k)) {
+              importX.set(k, mapPath.centroid(data.features[i])[0])
+            }
+            if (!importY.has(k)) {
+              importY.set(k, mapPath.centroid(data.features[i])[1]);
+            }
+            svg.append("circle")
+            .attr("r", 2)
+            .attr("cx", function(){
+              return mapPath.centroid(data.features[i])[0];
+            })
+            .attr("cy", function(){
+              return mapPath.centroid(data.features[i])[1];
+            })
+            .style("fill", "white")
+            .attr("class", "importers");
+            break;
+          }
+        }
+        for (var k = 0; k < Exporter.length; k++) {
+          if (idx != -1 && Exporter[k] == abbrs[idx]) {
+            if (!exportX.has(k)) {
+              exportX.set(k, mapPath.centroid(data.features[i])[0]);
+            }
+            if (!exportY.has(k)) {
+              exportY.set(k, mapPath.centroid(data.features[i])[1]);
+            }
+            svg.append("circle")
+            .attr("r", 2)
+            .attr("cx", function(){
+              return mapPath.centroid(data.features[i])[0];
+            })
+            .attr("cy", function(){
+              return mapPath.centroid(data.features[i])[1];
+            })
+            .style("fill", "white")
+            .attr("class", "exporters");
+            break;
+          }
+        }
+      }
+    });
+  });
+
+  function delta(plane, path) {
+     var l = path.getTotalLength();
+     var plane = plane;
+     return function(i) {
+       return function(t) {
+         var p = path.getPointAtLength(t * l);
+
+         var t2 = Math.min(t + 0.05, 1);
+         var p2 = path.getPointAtLength(t2 * l);
+
+         var x = p2.x - p.x;
+         var y = p2.y - p.y;
+         var r = 90 - Math.atan2(-y, x) * 180 / Math.PI;
+
+         var s = Math.min(Math.sin(Math.PI * t) * 0.7, 0.3);
+
+         return "translate(" + p.x + "," + p.y + ") scale(" + s + ") rotate(" + r + ")";
+       }
+     }
+   }
+
+  function transition(plane, route) {
+    var l = route.node().getTotalLength();
+    plane.transition()
+    .duration(l * 50)
+    .attrTween("transform", delta(plane, route.node()))
+    .remove();
+  }
+
+  var i = 0;
+  setInterval(
+    function() {
+    if (i > importX.size() - 1) {
+      i = 0;
+    }
+    var route = svg.append("path")
+    .datum({type: "LineString", coordinates: [geoMap.invert([importX.get(importX.keys()[i]), importY.get(importY.keys()[i])]),geoMap.invert([exportX.get(exportX.keys()[i]),exportY.get(exportY.keys()[i])])]})
+    .attr('d', mapPath)
+    .style("fill", "transparent")
+    .style("stroke-dasharray", ("3, 1"))
+    .style("stroke","#F8C471")
+    .style("opacity", 0.8)
+    .attr("class", "route");
+
+    var plane = svg.append("path")
+    .attr("class", "plane")
+    .attr("fill", "#F5B041")
+    .attr("d", "M25.21488,3.93375c-0.44355,0 -0.84275,0.18332 -1.17933,0.51592c-0.33397,0.33267 -0.61055,0.80884 -0.84275,1.40377c-0.45922,1.18911 -0.74362,2.85964 -0.89755,4.86085c-0.15655,1.99729 -0.18263,4.32223 -0.11741,6.81118c-5.51835,2.26427 -16.7116,6.93857 -17.60916,7.98223c-1.19759,1.38937 -0.81143,2.98095 -0.32874,4.03902l18.39971,-3.74549c0.38616,4.88048 0.94192,9.7138 1.42461,13.50099c-1.80032,0.52703 -5.1609,1.56679 -5.85232,2.21255c-0.95496,0.88711 -0.95496,3.75718 -0.95496,3.75718l7.53,-0.61316c0.17743,1.23545 0.28701,1.95767 0.28701,1.95767l0.01304,0.06557l0.06002,0l0.13829,0l0.0574,0l0.01043,-0.06557c0,0 0.11218,-0.72222 0.28961,-1.95767l7.53164,0.61316c0,0 0,-2.87006 -0.95496,-3.75718c-0.69044,-0.64577 -4.05363,-1.68813 -5.85133,-2.21516c0.48009,-3.77545 1.03061,-8.58921 1.42198,-13.45404l18.18207,3.70115c0.48009,-1.05806 0.86881,-2.64965 -0.32617,-4.03902c-0.88969,-1.03062 -11.81147,-5.60054 -17.39409,-7.89352c0.06524,-2.52287 0.04175,-4.88024 -0.1148,-6.89989l0,-0.00476c-0.15655,-1.99844 -0.44094,-3.6683 -0.90277,-4.8561c-0.22699,-0.59493 -0.50356,-1.07111 -0.83754,-1.40377c-0.33658,-0.3326 -0.73578,-0.51592 -1.18194,-0.51592l0,0l-0.00001,0l0,0Z");
+
+    transition(plane, route);
+    i++;
+  }, 135);
+
+  </script>
+  </body>
+  </html>
